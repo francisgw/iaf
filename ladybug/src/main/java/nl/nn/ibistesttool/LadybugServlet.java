@@ -17,6 +17,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 @IbisInitializer
@@ -24,6 +25,19 @@ public class LadybugServlet extends CXFServlet implements DynamicRegistration.Se
 	Logger log = LogUtil.getLogger(this);
 	// These are the beans that will be available directly under servlet context for endpoints.
 	private final String[] beans = new String[]{"testTool", "reportXmlTransformer", "runStorage", "logStorage"};
+	// These are the metadata for logstorage.
+	// TODO: Get them programatically.
+	private static final HashSet<String> metadataFields = new HashSet<String>() {{
+		add("storageId");
+		add("storageSize");
+		add("endTime");
+		add("duration");
+		add("name");
+		add("correlationId");
+		add("status");
+		add("numberOfCheckpoints");
+		add("estimatedMemoryUsage");
+	}};
 
 	@Override
 	public void init(ServletConfig sc) throws ServletException {
@@ -34,6 +48,7 @@ public class LadybugServlet extends CXFServlet implements DynamicRegistration.Se
 		// So they can be accessed from ibis-ladybug.
 		ServletContext servletContext = sc.getServletContext();
 		IbisContext context = IbisApplicationServlet.getIbisContext(servletContext);
+		servletContext.setAttribute("metadataFields", metadataFields);
 		for (String bean : beans) {
 			try {
 				log.debug("Ladybug Servlet registering bean [" + bean + "]");
